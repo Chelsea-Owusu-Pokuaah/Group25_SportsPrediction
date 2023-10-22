@@ -3,16 +3,35 @@ import streamlit as st
 import pickle as pk
 import pandas as pd
 
+
+st.set_page_config(page_title="Predict a Player's Rating",
+                   page_icon="⚽", layout="wide")
+
+st.subheader("Hey Soccer fan, Welcome 😃")
+st.title("Predict a Player's rating")
+st.write("Here, you can enter some features of a player and we wil predict their ratings!")
+
+
 def predict_system(user_input):
+    """
+    Predicts a player's rating using a trained model.
+
+    Parameters:
+    - user_input (pd.DataFrame): User-input data containing player features.
+
+    Returns:
+    - float or None: Predicted rating if successful, None if an error occurs.
+"""
+    # checks if fields have be filled
     if user_input is not None:
+        # Scaling the user's inputs with the scaler used to train the model
         with open('scaler_model.pkl', 'rb') as scaler_file:
             scaler = pk.load(scaler_file)
-     
+
         user_inputs_scaled = scaler.transform(user_input)
 
-
         try:
-            with open('best_model.pkl', 'rb') as file:
+            with open('best_model.pkl', 'rb') as file:  # reading from the model file
                 loaded_model = pk.load(file)
                 prediction = loaded_model.predict(user_inputs_scaled)[0]
                 st.success(f"Predicted Rating: {prediction}")
@@ -25,20 +44,14 @@ def predict_system(user_input):
         return None
 
 
-
-
-st.set_page_config(page_title="Predict a Player's Rating", page_icon="⚽", layout="wide")
-
-st.subheader("Hey Soccer fan, Welcome 😃")
-st.title("Predict a Player's rating")
-st.write("Here, you can enter some features of a player and we wil predict their ratings!")
-
 with st.container():
     st.write("---")
     left_column, right_column = st.columns(2)
     with left_column:
         st.header("Guidelines")
         st.write("##")
+        # ------------------------------------------------------------------------ #
+
         st.write("""
     Please enter the following features of the player.  
     Apart from Value, Wage and Release clause, all other features are in percentages
@@ -76,7 +89,7 @@ with st.container():
 
  17. Power average: An aggregate measure of a player's physical power across different attributes.
 """)
-        
+
     with right_column:
         st.header("Predict!")
         st.write("##")
@@ -84,27 +97,41 @@ with st.container():
 
         st.subheader("Enter Player's Information:")
         # Get user input for each variable
-        potential = st.number_input("Potential", min_value=0, max_value=100, step=1)
-        value_eur = st.number_input("Value (in Euros)", min_value=0.0, step=100.0)
-        wage_eur = st.number_input("Wage (in Euros)", min_value=0.0, step=100.0)
+        potential = st.number_input(
+            "Potential", min_value=0, max_value=100, step=1)
+        value_eur = st.number_input(
+            "Value (in Euros)", min_value=0.0, step=100.0)
+        wage_eur = st.number_input(
+            "Wage (in Euros)", min_value=0.0, step=100.0)
         age = st.number_input("Age", min_value=0, step=1)
-        international_reputation = st.number_input("International Reputation", min_value=0, max_value=5, step=1)
-        release_clause_eur = st.number_input("Release Clause (in Euros)", min_value=0.0, step=100.0)
-        shooting = st.number_input("Shooting", min_value=0, max_value=100, step=10)
-        passing = st.number_input("Passing", min_value=0, max_value=100, step=1)
-        dribbling = st.number_input("Dribbling", min_value=0, max_value=100, step=1)
+        international_reputation = st.number_input(
+            "International Reputation", min_value=0, max_value=5, step=1)
+        release_clause_eur = st.number_input(
+            "Release Clause (in Euros)", min_value=0.0, step=100.0)
+        shooting = st.number_input(
+            "Shooting", min_value=0, max_value=100, step=10)
+        passing = st.number_input(
+            "Passing", min_value=0, max_value=100, step=1)
+        dribbling = st.number_input(
+            "Dribbling", min_value=0, max_value=100, step=1)
         physic = st.number_input("Physic", min_value=0, max_value=100, step=1)
-        movement_reactions = st.number_input("Movement Reactions", min_value=0, max_value=100, step=1)
-        mentality_aggression = st.number_input("Mentality Agression", min_value=0, max_value=100, step=1)
-        mentality_vision = st.number_input("Mentality Vision", min_value=0, max_value=100, step=1)
-        mentality_composure = st.number_input("Mentality Composure", min_value=0, max_value=100, step=1)
-        attacking = st.number_input("Attacking", min_value=0, max_value=100, step=1)
+        movement_reactions = st.number_input(
+            "Movement Reactions", min_value=0, max_value=100, step=1)
+        mentality_aggression = st.number_input(
+            "Mentality Agression", min_value=0, max_value=100, step=1)
+        mentality_vision = st.number_input(
+            "Mentality Vision", min_value=0, max_value=100, step=1)
+        mentality_composure = st.number_input(
+            "Mentality Composure", min_value=0, max_value=100, step=1)
+        attacking = st.number_input(
+            "Attacking", min_value=0, max_value=100, step=1)
         skill = st.number_input("Skill", min_value=0, max_value=100, step=1)
-        power_average = st.number_input("Power Average", min_value=0, max_value=100, step=1)
-
+        power_average = st.number_input(
+            "Power Average", min_value=0, max_value=100, step=1)
 
         if st.button("Enter"):
             inputs = None
+            # creating a dictionary of the inputs
             user_inputs = {
                 'potential': [potential],
                 'value_eur': [value_eur],
@@ -124,10 +151,8 @@ with st.container():
                 'skill': [skill],
                 'power_average': [power_average]
             }
-
+            # creating a dataframe from the inputs
             inputs = pd.DataFrame(user_inputs)
 
             # Call the predict_system function
             predict_system(inputs)
-
-
